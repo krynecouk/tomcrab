@@ -1,6 +1,6 @@
 use std::io::prelude::*;
 use std::net::{SocketAddr, TcpListener, TcpStream};
-use std::{fs, process, thread, time::Duration};
+use std::{fs, process};
 use tomcrab::ThreadPool;
 
 fn main() {
@@ -20,10 +20,10 @@ fn main() {
 
     for stream in listener.incoming() {
         match stream {
-            Ok(s) => {
-                println!("connection successfully established: {:?}", &s);
-                pool.execute(|| {
-                    unimplemented!("not yet implemented");
+            Ok(stream) => {
+                println!("connection successfully established: {:?}", &stream);
+                pool.execute(move || {
+                    handle_connection(&stream);
                 });
             }
             Err(e) => {
@@ -37,13 +37,8 @@ fn main() {
         stream.read(&mut buffer).unwrap();
 
         let get = b"GET / HTTP/1.1\r\n";
-        let sleep = b"GET /sleep HTTP/1.1\r\n";
 
         let (status_line, filename) = if buffer.starts_with(get) {
-            // todo: take from TOML configuration file
-            ("HTTP/1.1 200 OK\r\n\r\n", "index.html")
-        } else if buffer.starts_with(sleep) {
-            thread::sleep(Duration::from_secs(5));
             // todo: take from TOML configuration file
             ("HTTP/1.1 200 OK\r\n\r\n", "index.html")
         } else {
