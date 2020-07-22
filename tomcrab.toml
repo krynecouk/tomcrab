@@ -1,0 +1,5 @@
+title = "Tomcrab TOML configuration example"
+
+[server]
+ports = [80, 443, 8888]
+location = "./index.html"
